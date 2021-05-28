@@ -161,6 +161,7 @@ def check_wordpress(rootdir: str):
     """
     Checks if WordPress and its plugins are updated.
     """
+    print(f"Starting check at {datetime.now()}")
     wp = WordPressOnline()
     for wp_dir, dirs, files in os.walk(rootdir):
         if is_wordpress(wp_dir):
@@ -177,6 +178,7 @@ def check_wordpress(rootdir: str):
             elif (datetime.now() - release_date).days > 180:
                 print("   This WordPress version is probabily outdated")
             check_wordpress_plugins(wp, wp_dir)
+    print(f"Check finished at {datetime.now()}")
 
 
 if __name__ == "__main__":
