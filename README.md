@@ -6,8 +6,8 @@
 > Command line tool to check if your WordPress deployments are up-to-date (both core and plugins).
 
 [![Python](https://img.shields.io/badge/python-v3.7+-blue.svg)](https://www.python.org)
-[![License](https://img.shields.io/github/license/bernarpa/wp-check.svg)](https://opensource.org/licenses/AGPL-3.0)
-[![GitHub issues](https://img.shields.io/github/issues/bernarpa/wp-check.svg)](https://github.com/bernarpa/wp-check/issues)
+[![License](https://img.shields.io/github/license/pbswengineering/wp-check.svg)](https://opensource.org/licenses/AGPL-3.0)
+[![GitHub issues](https://img.shields.io/github/issues/pbswengineering/wp-check.svg)](https://github.com/pbswengineering/wp-check/issues)
 
 ## Table of contents
 
