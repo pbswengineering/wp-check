@@ -11,6 +11,7 @@ import re
 import sys
 from typing import Optional, Tuple, Union
 
+import chardet
 from bs4 import BeautifulSoup
 import dateutil.parser as dateparser
 from packaging import version
@@ -18,6 +19,19 @@ import requests
 
 
 PackageVersion = Union[version.Version, version.LegacyVersion]
+
+
+def read_file(file_name: str) -> str:
+    """
+    Read a text file, handling different encoding.
+    """
+    with open(file_name, "rb") as f:
+        rawdata = f.read()
+    try:
+        return rawdata.decode("utf-8")
+    except UnicodeDecodeError:
+        detected = chardet.detect(rawdata)
+        return rawdata.decode(detected["encoding"])
 
 
 class WordPressOnline:
@@ -92,8 +106,7 @@ def check_plugin(wp: WordPressOnline, plugins_dir: str, plugin_slug: str):
         php_file = os.path.join(plugin_dir, php_file)
         if not os.path.isfile(php_file) or not php_file.endswith(".php"):
             continue
-        with open(php_file) as f:
-            php_code = f.read()
+        php_code = read_file(php_file)
         matches = re.findall(r"Plugin Name:\s*(.+?)$", php_code, re.MULTILINE)
         if not matches:
             continue
@@ -137,8 +150,7 @@ def get_wp_version(wp_dir: str) -> Optional[str]:
     version_php = os.path.join(wp_dir, "wp-includes", "version.php")
     if not os.path.exists(version_php):
         return None
-    with open(version_php) as f:
-        php_code = f.read()
+    php_code = read_file(version_php)
     versions = re.findall(r"\$wp_version\s*=\s*'([^']+)'", php_code, re.MULTILINE)
     if not versions:
         return None
@@ -150,11 +162,11 @@ def check_wordpress(rootdir: str):
     Checks if WordPress and its plugins are updated.
     """
     wp = WordPressOnline()
-    for directory, dirs, files in os.walk(rootdir):
-        if is_wordpress(directory):
+    for wp_dir, dirs, files in os.walk(rootdir):
+        if is_wordpress(wp_dir):
             print("-" * 40)
-            print(f"WordPress: {directory}")
-            wp_version = get_wp_version(directory)
+            print(f"WordPress: {wp_dir}")
+            wp_version = get_wp_version(wp_dir)
             if not wp_version:
                 print("   wp-includes/version.php not found, skipping.")
                 continue
@@ -164,7 +176,7 @@ def check_wordpress(rootdir: str):
                 print("   This WordPress version is OUT-OF-DATE")
             elif (datetime.now() - release_date).days > 180:
                 print("   This WordPress version is probabily outdated")
-            check_wordpress_plugins(wp, directory)
+            check_wordpress_plugins(wp, wp_dir)
 
 
 if __name__ == "__main__":
